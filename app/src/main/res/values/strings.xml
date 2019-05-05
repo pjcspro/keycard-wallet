@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">keycarddemo</string>
+    <string name="title_activity_main">Keycard Demo</string>
+</resources>
