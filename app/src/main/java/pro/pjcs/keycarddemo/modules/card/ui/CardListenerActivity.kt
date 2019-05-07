@@ -28,7 +28,6 @@ class CardListenerActivity : Activity() {
     override fun onPause() {
         super.onPause()
 
-
         //stop listening for NFC connections
         cardManager.disable()
     }

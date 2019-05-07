@@ -2,21 +2,24 @@ package pro.pjcs.keycarddemo.modules.card
 
 import android.app.Activity
 import android.nfc.NfcAdapter
-import android.util.Log
 import im.status.keycard.android.NFCCardManager
 import im.status.keycard.applet.KeycardCommandSet
 import im.status.keycard.io.CardChannel
 import im.status.keycard.io.CardListener
+import pro.pjcs.keycarddemo.MyLog
 
 
-
+/**
+ * Listens for card connections and disconnections.
+ * Creates a #CardSession once a card is connected
+ */
 class CardManager(private var activity : Activity) {
 
     private val TAG = "CardManager"
-    private var nfcAdapter: NfcAdapter = NfcAdapter.getDefaultAdapter(activity)
-    private var cardManager: NFCCardManager = NFCCardManager()
+    private val nfcAdapter: NfcAdapter = NfcAdapter.getDefaultAdapter(activity)
+    private val cardManager: NFCCardManager = NFCCardManager()
 
-    private lateinit var cardSession: CardSession
+    private var cardSession: CardSession? = null
 
     init {
 
@@ -55,7 +58,7 @@ class CardManager(private var activity : Activity) {
 
     private fun onCardConnected(cardChannel: CardChannel){
 
-        Log.i(TAG, "onCardConnected")
+        MyLog.i(TAG, "onCardConnected")
         // Applet-specific code
         val cmdSet = KeycardCommandSet(cardChannel)
 
@@ -65,8 +68,10 @@ class CardManager(private var activity : Activity) {
 
     private fun onCardDisconnected(){
 
-        Log.i(TAG, "onCardDisconnected")
+        MyLog.i(TAG, "onCardDisconnected")
 
+        //clear from memory
+        cardSession = null
     }
 
 }
