@@ -34,4 +34,11 @@ dependencies {
 
     //keycard
     implementation 'com.github.status-im.status-keycard-java:android:2.2.1'
+
+
+    // BitcoinKit
+    //implementation 'com.github.horizontalsystems:bitcoin-kit-android:affdbed'
+    // EthereumKit
+    //implementation 'com.github.horizontalsystems:ethereum-kit-android:28ff3cd'
+
 }

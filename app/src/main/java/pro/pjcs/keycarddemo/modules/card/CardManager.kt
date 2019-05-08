@@ -9,6 +9,14 @@ import im.status.keycard.io.CardListener
 import pro.pjcs.keycarddemo.MyLog
 
 
+/*
+* TODO: Replace with LiveData
+*/
+interface ICardListener {
+    fun cardDidConnect(cardManager: CardManager, cardSession: CardSession)
+    fun cardDidDisconnect(cardManager: CardManager)
+}
+
 /**
  * Listens for card connections and disconnections.
  * Creates a #CardSession once a card is connected
@@ -18,6 +26,8 @@ class CardManager(private var activity : Activity) {
     private val TAG = "CardManager"
     private val nfcAdapter: NfcAdapter = NfcAdapter.getDefaultAdapter(activity)
     private val cardManager: NFCCardManager = NFCCardManager()
+
+    var cardListener : ICardListener? = null //TODO: replace with LiveData
 
     private var cardSession: CardSession? = null
 
@@ -64,6 +74,8 @@ class CardManager(private var activity : Activity) {
 
         cardSession = CardSession(cmdSet)
 
+        cardSession?.let { cardListener?.cardDidConnect(this, it) }
+
     }
 
     private fun onCardDisconnected(){
@@ -72,6 +84,8 @@ class CardManager(private var activity : Activity) {
 
         //clear from memory
         cardSession = null
+
+        cardListener?.cardDidDisconnect(this)
     }
 
 }

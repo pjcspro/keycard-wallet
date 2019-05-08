@@ -4,11 +4,14 @@ import pro.pjcs.keycarddemo.MyLog
 import pro.pjcs.keycarddemo.toHex
 
 
+
+
+
+
 /**
  * Handles the high level interaction with the card
  *
- * TODO: init currently is only for debug.
- * TODO: Sign messages and transactions
+ * TODO: initializaton process if card is not init/
  * TODO: Ask credentials to the user, not fixed
  * TODO: Make clear which calls require authentication
  * TODO: Allow to switch between 12 and 24 words
@@ -25,33 +28,48 @@ class CardSession(private var cmdSet : KeycardCommandSet) {
         // Selecting the applet on the card
         info = ApplicationInfo(cmdSet.select().checkOK().data)
 
-        initializeIfNeed()
 
-        debug()
+        if( !isCardInitialized() ){
 
-        pair()
+            MyLog.w(TAG, "Card is not initialized")
+            //TODO: start initialization process
 
-        debugRetryCount()
+            /*
+            initializeIfNeed()
 
-        authenticateWithPin()
+            debug()
 
-        if( !hasMasterKey() ){
+            pair()
 
-            val mnemonic = generateMnemonic()
-            MyLog.i(TAG, "Generated mnemonic phrase: " + mnemonic.toMnemonicPhrase())
+            debugRetryCount()
 
-            injectMnemonicKey(mnemonic)
+            authenticateWithPin()
+
+            if( !hasMasterKey() ){
+
+                val mnemonic = generateMnemonic()
+                MyLog.i(TAG, "Generated mnemonic phrase: " + mnemonic.toMnemonicPhrase())
+
+                injectMnemonicKey(mnemonic)
+            }
+
+            debugPublicKey()
+
+            MyLog.i(TAG, "Current key path: "+getCurrentKeyPath()) //Current key path: m => Master Key
+
+            deriveKey()
+
+            MyLog.i(TAG, "Current key path: "+getCurrentKeyPath())
+
+            unpair()
+            */
+
+        }else{
+
+            MyLog.i(TAG, "Card is initialized")
+            debug()
+
         }
-
-        debugPublicKey()
-
-        MyLog.i(TAG, "Current key path: "+getCurrentKeyPath()) //Current key path: m => Master Key
-
-        deriveKey()
-
-        MyLog.i(TAG, "Current key path: "+getCurrentKeyPath())
-
-        unpair()
 
     }
 
@@ -91,13 +109,13 @@ class CardSession(private var cmdSet : KeycardCommandSet) {
 
         if (info.hasSecureChannelCapability()) {
             // In real projects, the pairing key should be saved and used for all new sessions.
-            cmdSet.autoPair("KeycardTest")
+            cmdSet.autoPair("KeycardTest") //TODO: Request password to the user
             val pairing = cmdSet.pairing
 
             // Never log the pairing key in a real application!
             MyLog.i(TAG, "Pairing with card is done.")
             MyLog.i(TAG, "Pairing index: " + pairing.pairingIndex)
-            MyLog.i(TAG, "Pairing key: " + toHex(pairing.pairingKey))
+            MyLog.i(TAG, "Pairing key: " + toHex(pairing.pairingKey))           //TODO: Save pairing key locally
 
             // Opening a Secure Channel is needed for all other applet commands
             cmdSet.autoOpenSecureChannel()
@@ -108,7 +126,6 @@ class CardSession(private var cmdSet : KeycardCommandSet) {
     }
 
     private fun unpair(){
-        MyLog.i(TAG, "unpair");
 
         if (hasSecureCapability()) {
             // Cleanup, in a real application you would not unpair and instead keep the pairing key for successive interactions.
@@ -118,6 +135,8 @@ class CardSession(private var cmdSet : KeycardCommandSet) {
             cmdSet.autoUnpair();
 
         }
+
+        MyLog.i(TAG, "unpaired");
 
     }
 
@@ -232,4 +251,43 @@ class CardSession(private var cmdSet : KeycardCommandSet) {
 
     }
 
+
+    /******************* SIGNING KEY ******************/
+
+    fun readyToSign(): Boolean {
+        return isCardInitialized() && hasMasterKey() && !getCurrentKeyPath().equals("m");
+    }
+
+    fun sign(hash : ByteArray): RecoverableSignature {
+
+        if( !readyToSign() ){
+            throw Exception("Card not ready to sign yet. Please initialize it, create a master key and derive it.")
+        }
+
+        val signature = RecoverableSignature(hash, cmdSet.sign(hash).checkOK().data)
+        return signature
+
+    }
+
+    fun deriveAndSign(path : String, hash : ByteArray): RecoverableSignature {
+
+        //path = "m/44'/0'/0'/0/0"
+        val resp = cmdSet.signWithPath(hash, path, false)
+        val signature = RecoverableSignature(hash, resp.checkOK().data)
+        return signature
+
+    }
+
+    fun just( action : ()->Unit ){
+        try {
+            //TODO: create a datatype that know the requirements for an action (pair needed? authentication needed? etc)
+            pair()
+            authenticateWithPin()
+            action()
+        }catch (e : Exception){
+            e.printStackTrace()
+        }finally {
+            unpair()
+        }
+    }
 }
