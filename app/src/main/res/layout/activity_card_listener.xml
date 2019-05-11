@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@android:color/white"
         >
 
+
+    <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="600dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="-80dp"
+            android:rotation="20"
+            android:src="@drawable/keycard_white"
+            android:scaleType="centerInside"
+            />
+
+
     <TextView
+            android:id="@+id/helper_text"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Listening for card"
+            android:layout_height="wrap_content"
+            android:text="@string/waiting_for_card"
+            android:textSize="17sp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="60dp"
+            android:textAlignment="center"
+            android:textColor="#999999"
             />
 
-    <Button
-            android:id="@+id/transact_button"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Transact"
-            />
-
-</LinearLayout>
+</RelativeLayout>

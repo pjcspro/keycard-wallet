@@ -20,6 +20,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility 1.7
+        targetCompatibility 1.8
+    }
+
 }
 
 dependencies {
@@ -35,10 +41,9 @@ dependencies {
     //keycard
     implementation 'com.github.status-im.status-keycard-java:android:2.2.1'
 
+    //Web3j
+    implementation 'org.web3j:core:4.2.0-android'
 
-    // BitcoinKit
-    //implementation 'com.github.horizontalsystems:bitcoin-kit-android:affdbed'
-    // EthereumKit
-    //implementation 'com.github.horizontalsystems:ethereum-kit-android:28ff3cd'
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
 
 }

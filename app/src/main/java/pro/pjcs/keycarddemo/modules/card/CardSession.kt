@@ -2,10 +2,7 @@ package pro.pjcs.keycarddemo.modules.card
 import im.status.keycard.applet.*
 import pro.pjcs.keycarddemo.MyLog
 import pro.pjcs.keycarddemo.toHex
-
-
-
-
+import kotlin.concurrent.thread
 
 
 /**
@@ -18,7 +15,7 @@ import pro.pjcs.keycarddemo.toHex
  * TODO: More complete key derivation
  *
  */
-class CardSession(private var cmdSet : KeycardCommandSet) {
+class CardSession(var cmdSet : KeycardCommandSet) {
 
     private val TAG = "CardSession"
     private var info: ApplicationInfo
@@ -279,15 +276,21 @@ class CardSession(private var cmdSet : KeycardCommandSet) {
     }
 
     fun just( action : ()->Unit ){
-        try {
-            //TODO: create a datatype that know the requirements for an action (pair needed? authentication needed? etc)
-            pair()
-            authenticateWithPin()
-            action()
-        }catch (e : Exception){
-            e.printStackTrace()
-        }finally {
-            unpair()
+
+        thread {
+
+            try {
+                //TODO: create a datatype that know the requirements for an action (pair needed? authentication needed? etc)
+                pair()
+                authenticateWithPin()
+                action()
+            }catch (e : Exception){
+                e.printStackTrace()
+            }finally {
+                try { unpair() } catch (e : Exception){ e.printStackTrace() }
+            }
+
         }
+
     }
 }

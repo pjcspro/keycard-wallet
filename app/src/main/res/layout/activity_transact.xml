@@ -8,21 +8,23 @@
         >
 
     <EditText
+            android:id="@+id/input_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Finney Amount"
+            android:text="1"
+            android:inputType="numberDecimal"
+        />
+
+
+    <EditText
             android:id="@+id/input_to_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="To"
+            android:text="0x687422eEA2cB73B5d3e242bA5456b782919AFc85"
             android:inputType="text"
             />
-
-    <EditText
-            android:id="@+id/input_amount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Amount"
-        android:inputType="numberDecimal"
-        />
-
 
     <Button
             android:id="@+id/action_send"

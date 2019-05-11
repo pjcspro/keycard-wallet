@@ -3,8 +3,13 @@ package pro.pjcs.keycarddemo.modules.card.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_transact.*
+import org.web3j.utils.Convert
 import pro.pjcs.keycarddemo.R
+import pro.pjcs.keycarddemo.modules.blockchain.RequestForTransaction
+import java.math.BigDecimal
+
 
 class TransactActivity : Activity() {
 
@@ -23,11 +28,18 @@ class TransactActivity : Activity() {
 
     private fun send(to_address: String, amount : String){
 
-        val hash = "testing $to_address $amount"
+        val finneyValue = amount.toDoubleOrNull()
+        if(finneyValue == null){
+            Toast.makeText(applicationContext, "Invalid amount", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val weiValue = Convert.toWei(BigDecimal.valueOf(finneyValue), Convert.Unit.FINNEY).toBigIntegerExact()
+        val request = RequestForTransaction(to_address, weiValue)
 
         val intent = Intent(this, CardListenerActivity::class.java)
         intent.putExtra(CardListenerActivity.BUNDLE_ACTION, CardListenerActivity.ACTION.SIGN)
-        intent.putExtra(CardListenerActivity.BUNDLE_DATA, "thiscouldbeahashintheorysoitisok".toByteArray()) //TODO: get hash from transaction
+        intent.putExtra(CardListenerActivity.BUNDLE_DATA, request)
         startActivity(intent)
 
     }
