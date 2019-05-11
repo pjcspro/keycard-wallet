@@ -1,6 +1,7 @@
 package pro.pjcs.keycarddemo.modules.blockchain
 
 import android.app.Activity
+import android.content.Intent
 import android.widget.Toast
 import im.status.keycard.applet.RecoverableSignature
 import org.bouncycastle.util.encoders.Hex
@@ -16,6 +17,7 @@ import org.web3j.utils.Numeric
 import pro.pjcs.keycarddemo.MyLog
 import pro.pjcs.keycarddemo.R
 import pro.pjcs.keycarddemo.modules.card.CardSession
+import pro.pjcs.keycarddemo.modules.card.ui.TransactionSuccessActivity
 import pro.pjcs.keycarddemo.toHex
 import java.io.Serializable
 import java.math.BigInteger
@@ -69,6 +71,12 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
                     Toast.makeText(activity, ethSendTransaction.error.message, Toast.LENGTH_LONG).show()
                 }
             }
+
+            MyLog.w(TAG, "Transaction hash: "+ethSendTransaction.transactionHash)
+
+            val intent = Intent(activity, TransactionSuccessActivity::class.java)
+            intent.putExtra(TransactionSuccessActivity.BUNDLE_TRANSACTION_HASH, ethSendTransaction.transactionHash)
+            activity.startActivity(intent)
 
         }
 

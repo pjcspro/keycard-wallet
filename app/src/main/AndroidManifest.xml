@@ -18,12 +18,16 @@
         <activity android:name=".modules.card.ui.CardListenerActivity">
         </activity>
 
+        <activity android:name=".modules.card.ui.TransactionSuccessActivity">
+        </activity>
+
         <activity android:name=".modules.card.ui.TransactActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
 
     </application>
 

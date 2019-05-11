@@ -2,6 +2,7 @@ package pro.pjcs.keycarddemo.modules.card
 
 import android.app.Activity
 import android.nfc.NfcAdapter
+import android.nfc.TagLostException
 import im.status.keycard.android.NFCCardManager
 import im.status.keycard.applet.KeycardCommandSet
 import im.status.keycard.io.CardChannel
@@ -69,13 +70,18 @@ class CardManager(private var activity : Activity) {
     private fun onCardConnected(cardChannel: CardChannel){
 
         MyLog.i(TAG, "onCardConnected")
-        // Applet-specific code
-        val cmdSet = KeycardCommandSet(cardChannel)
+        try {
 
-        cardSession = CardSession(cmdSet)
+            // Applet-specific code
+            val cmdSet = KeycardCommandSet(cardChannel)
 
-        cardSession?.let { cardListener?.cardDidConnect(this, it) }
+            cardSession = CardSession(cmdSet)
 
+            cardSession?.let { cardListener?.cardDidConnect(this, it) }
+
+        }catch (tagLost : TagLostException){
+            tagLost.printStackTrace()
+        }
     }
 
     private fun onCardDisconnected(){
