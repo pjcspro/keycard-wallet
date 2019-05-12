@@ -34,7 +34,7 @@ class TransactActivity : Activity() {
             return
         }
 
-        val weiValue = Convert.toWei(BigDecimal.valueOf(finneyValue), Convert.Unit.FINNEY).toBigIntegerExact()
+        val weiValue = Convert.toWei(BigDecimal.valueOf(finneyValue), Convert.Unit.ETHER).toBigIntegerExact()
         val request = RequestForTransaction(to_address, weiValue)
 
         val intent = Intent(this, CardListenerActivity::class.java)

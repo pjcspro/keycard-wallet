@@ -3,34 +3,106 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="40dp"
         android:orientation="vertical"
-        >
-
-    <EditText
-            android:id="@+id/input_amount"
+        android:background="@android:color/white"
+    >
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Finney Amount"
-            android:text="1"
-            android:inputType="numberDecimal"
-        />
+            android:padding="40dp"
+            android:orientation="vertical"
+            >
 
 
-    <EditText
-            android:id="@+id/input_to_address"
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AMOUNT"
+                android:textColor="@android:color/black"
+                />
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ξ"
+                    android:textSize="40sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/darker_gray"
+                    />
+
+            <EditText
+                    android:id="@+id/input_amount"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="0.01"
+                    android:textSize="40sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/darker_gray"
+                    android:inputType="numberDecimal"
+                    />
+
+        </LinearLayout>
+
+
+        <TextView
+                android:layout_marginTop="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:text="TO"
+                />
+
+
+        <EditText
+                android:id="@+id/input_to_address"
+                android:layout_width="match_parent"
+                android:textColor="@android:color/darker_gray"
+                android:layout_height="wrap_content"
+                android:text="0x687422eEA2cB73B5d3e242bA5456b782919AFc85"
+                android:inputType="text"
+                android:textSize="15sp"
+                />
+
+        <Button
+                android:id="@+id/action_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SEND"
+                android:layout_marginTop="40dp"
+                android:background="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="To"
-            android:text="0x687422eEA2cB73B5d3e242bA5456b782919AFc85"
-            android:inputType="text"
-            />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            >
 
-    <Button
-            android:id="@+id/action_send"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SEND"
-            />
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="-180dp"
+                android:layout_marginLeft="-120dp"
+                android:rotation="20"
+                android:src="@drawable/keycard_green"
+                android:scaleType="centerInside"
+                android:paddingTop="50dp"
+                />
 
+
+    </LinearLayout>
 </LinearLayout>
