@@ -8,6 +8,7 @@
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
 
     <application
+            android:name=".MyApplication"
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
@@ -15,7 +16,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
 
-        <activity android:name=".modules.card.ui.CardListenerActivity">
+        <activity android:name=".modules.card.ui.CardListenerActivityI">
         </activity>
 
         <activity android:name=".modules.card.ui.TransactionSuccessActivity">

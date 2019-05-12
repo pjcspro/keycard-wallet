@@ -1,8 +1,5 @@
 package pro.pjcs.keycarddemo.modules.blockchain
 
-import android.app.Activity
-import android.content.Intent
-import android.widget.Toast
 import im.status.keycard.applet.RecoverableSignature
 import org.bouncycastle.util.encoders.Hex
 import org.web3j.crypto.Hash
@@ -10,18 +7,26 @@ import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.Sign
 import org.web3j.crypto.TransactionEncoder
 import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.core.JsonRpc2_0Web3j
-import org.web3j.protocol.http.HttpService
 import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
+import pro.pjcs.keycarddemo.MyApplication
 import pro.pjcs.keycarddemo.MyLog
-import pro.pjcs.keycarddemo.R
 import pro.pjcs.keycarddemo.modules.card.CardSession
-import pro.pjcs.keycarddemo.modules.card.ui.TransactionSuccessActivity
 import pro.pjcs.keycarddemo.toHex
 import java.io.Serializable
 import java.math.BigInteger
 import java.util.*
+
+
+/**
+ * TODO: Replace interface listeners with LiveData and/or events
+ */
+
+interface IRequestTransaction {
+    fun willPrepareTransaction()
+    fun didSubmitTransaction(txHash : String)
+    fun didFailedTransaction(error : String)
+}
 
 /**
  * Note: for ethereum value must be in weiValue
@@ -30,14 +35,13 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
 
 
 
-    fun testSign(cardSession: CardSession, activity: Activity){ //TODO: remove activity dependencies
+    fun send(cardSession: CardSession, listenerI: IRequestTransaction){
 
 
         cardSession.just {
 
-            val infuraKey =  activity.getString(R.string.infura_key)
-            val web3j = JsonRpc2_0Web3j(HttpService("https://ropsten.infura.io/v3/$infuraKey"))
-
+            listenerI.willPrepareTransaction()
+            val web3j = MyApplication.web3j
             val fromAddress = cardSession.getPublicKey()?.toEthereumAddress()?.let { "0x"+ toHex(it) };
             MyLog.w(TAG, "fromAddress: $fromAddress")
 
@@ -66,17 +70,14 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
             val ethSendTransaction = web3j.ethSendRawTransaction(hexValue).send()
 
             if (ethSendTransaction.hasError()) {
+
                 println("Transaction Error: " + ethSendTransaction.error.message)
-                activity.runOnUiThread {
-                    Toast.makeText(activity, ethSendTransaction.error.message, Toast.LENGTH_LONG).show()
-                }
+                listenerI.didFailedTransaction(ethSendTransaction.error.message)
+
             }
 
             MyLog.w(TAG, "Transaction hash: "+ethSendTransaction.transactionHash)
-
-            val intent = Intent(activity, TransactionSuccessActivity::class.java)
-            intent.putExtra(TransactionSuccessActivity.BUNDLE_TRANSACTION_HASH, ethSendTransaction.transactionHash)
-            activity.startActivity(intent)
+            listenerI.didSubmitTransaction(ethSendTransaction.transactionHash)
 
         }
 
@@ -87,8 +88,7 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
     private fun signMessage(cardSession: CardSession, message: ByteArray): Sign.SignatureData {
         val messageHash = Hash.sha3(message)
 
-        val response = cardSession.cmdSet.sign(messageHash)
-        val respData = response.getData()
+        val respData = cardSession.sign(messageHash)
         val rawSig = extractSignature(respData)
 
         val rLen = rawSig[3].toInt()
@@ -99,10 +99,10 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
         var s = BigInteger(Arrays.copyOfRange(rawSig, sOff, sOff + sLen))
 
 
-        val signature = RecoverableSignature(messageHash, response.checkOK().data)
+        val signature = RecoverableSignature(messageHash, respData)
 
 
-        /*
+        /* OLD VERSION
         val ecdsaSignature = Class.forName("org.web3j.crypto.Sign\$ECDSASignature")
         val ecdsaSignatureConstructor =
             ecdsaSignature.getDeclaredConstructor(BigInteger::class.java, BigInteger::class.java)
@@ -134,12 +134,13 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
         if (recId == -1) {
             throw RuntimeException("Could not construct a recoverable key. This should never happen.")
         }
-        */
-
-        val headerByte = signature.recId + 27
 
         val rF = signature.r
         val sF = signature.s
+
+        */
+
+        val headerByte = signature.recId + 27
 
         // 1 header + 32 bytes for R + 32 bytes for S
         val v = headerByte.toByte()

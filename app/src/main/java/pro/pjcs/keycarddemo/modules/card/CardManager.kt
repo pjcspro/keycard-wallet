@@ -11,9 +11,9 @@ import pro.pjcs.keycarddemo.MyLog
 
 
 /*
-* TODO: Replace with LiveData
+* TODO: Replace interface listeners with LiveData and/or events
 */
-interface ICardListener {
+interface ICardListener : ICardSessionListener {
     fun cardDidConnect(cardManager: CardManager, cardSession: CardSession)
     fun cardDidDisconnect(cardManager: CardManager)
 }
@@ -28,7 +28,7 @@ class CardManager(private var activity : Activity) {
     private val nfcAdapter: NfcAdapter = NfcAdapter.getDefaultAdapter(activity)
     private val cardManager: NFCCardManager = NFCCardManager()
 
-    var cardListener : ICardListener? = null //TODO: replace with LiveData
+    var cardListener : ICardListener? = null //TODO: replace with LiveData and/or events
 
     private var cardSession: CardSession? = null
 
@@ -75,7 +75,7 @@ class CardManager(private var activity : Activity) {
             // Applet-specific code
             val cmdSet = KeycardCommandSet(cardChannel)
 
-            cardSession = CardSession(cmdSet)
+            cardSession = CardSession(cmdSet, cardListener)
 
             cardSession?.let { cardListener?.cardDidConnect(this, it) }
 

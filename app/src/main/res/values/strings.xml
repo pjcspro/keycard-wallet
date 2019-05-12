@@ -1,6 +1,13 @@
 <resources>
-    <string name="app_name">keycarddemo</string>
+    <string name="app_name">Keycard Demo</string>
     <string name="title_activity_main">Keycard Demo</string>
     <string name="waiting_for_card">Touch your keycard to the phone</string>
     <string name="card_connected_1">Wait...</string>
+    <string name="card_status_pairing">Pairing...</string>
+    <string name="card_status_paired">Paired</string>
+    <string name="card_status_authenticating">Authenticating...</string>
+    <string name="card_status_authenticated">Authenticated</string>
+    <string name="card_status_transacting">Sending...</string>
+    <string name="card_status_transacted">Sent</string>
+    <string name="generic_error">Error</string>
 </resources>

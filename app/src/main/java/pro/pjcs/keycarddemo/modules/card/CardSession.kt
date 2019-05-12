@@ -15,7 +15,15 @@ import kotlin.concurrent.thread
  * TODO: More complete key derivation
  *
  */
-class CardSession(var cmdSet : KeycardCommandSet) {
+
+interface ICardSessionListener {
+    fun willPair()
+    fun didPair()
+    fun willAuthenticate()
+    fun didAuthenticate()
+}
+
+class CardSession(val cmdSet : KeycardCommandSet, val listener : ICardSessionListener?) {
 
     private val TAG = "CardSession"
     private var info: ApplicationInfo
@@ -94,10 +102,15 @@ class CardSession(var cmdSet : KeycardCommandSet) {
     private fun authenticateWithPin(){
 
         if (info.hasCredentialsManagementCapability()) {
+
+            listener?.willAuthenticate()
+
             // PIN authentication allows execution of privileged commands
             cmdSet.verifyPIN("000000").checkAuthOK();
 
             MyLog.i(TAG, "Pin Verified.");
+
+            listener?.didAuthenticate()
         }
 
     }
@@ -105,6 +118,9 @@ class CardSession(var cmdSet : KeycardCommandSet) {
     private fun pair(){
 
         if (info.hasSecureChannelCapability()) {
+
+            listener?.willPair()
+
             // In real projects, the pairing key should be saved and used for all new sessions.
             cmdSet.autoPair("KeycardTest") //TODO: Request password to the user
             val pairing = cmdSet.pairing
@@ -117,7 +133,9 @@ class CardSession(var cmdSet : KeycardCommandSet) {
             // Opening a Secure Channel is needed for all other applet commands
             cmdSet.autoOpenSecureChannel()
 
-            MyLog.i(TAG, "Secure channel opened. Getting applet status.")
+            MyLog.i(TAG, "Secure channel opened")
+
+            listener?.didPair()
         }
 
     }
@@ -255,13 +273,16 @@ class CardSession(var cmdSet : KeycardCommandSet) {
         return isCardInitialized() && hasMasterKey() && !getCurrentKeyPath().equals("m");
     }
 
-    fun sign(hash : ByteArray): RecoverableSignature {
+
+
+    fun sign(hash : ByteArray): ByteArray {
 
         if( !readyToSign() ){
             throw Exception("Card not ready to sign yet. Please initialize it, create a master key and derive it.")
         }
 
-        val signature = RecoverableSignature(hash, cmdSet.sign(hash).checkOK().data)
+        //val signature = RecoverableSignature(hash, cmdSet.sign(hash).checkOK().data)
+        val signature = cmdSet.sign(hash).checkOK().data ?: throw Exception("Error while signing")
         return signature
 
     }
