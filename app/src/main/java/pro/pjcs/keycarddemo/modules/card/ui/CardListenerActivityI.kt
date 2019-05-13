@@ -3,8 +3,12 @@ package pro.pjcs.keycarddemo.modules.card.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.view.View
 import android.widget.Toast
-import androidx.annotation.StringRes
+import com.andrognito.pinlockview.IndicatorDots
+import com.andrognito.pinlockview.PinLockListener
+import im.status.keycard.io.WrongPINException
 import kotlinx.android.synthetic.main.activity_card_listener.*
 import pro.pjcs.keycarddemo.R
 import pro.pjcs.keycarddemo.modules.blockchain.IRequestTransaction
@@ -14,12 +18,14 @@ import pro.pjcs.keycarddemo.modules.card.CardSession
 import pro.pjcs.keycarddemo.modules.card.ICardListener
 
 
-class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
+class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction, PinLockListener {
 
     private lateinit var cardManager: CardManager
 
     enum class ACTION { SEND }
     private var action : ACTION? = null
+
+    private var readyToAct = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +39,13 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
         if( action == null ){
             throw Exception("CardListenerActivityI requires an action to be passed on its Intent")
         }
+
+        input_pin.visibility = View.VISIBLE
+        input_pin.setPinLockListener(this)
+        input_pin.pinLength = 6
+
+        input_pin.attachIndicatorDots(pin_dots)
+        pin_dots.indicatorType = IndicatorDots.IndicatorType.FILL_WITH_ANIMATION
 
     }
 
@@ -50,7 +63,7 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
         cardManager.disable()
     }
 
-    private fun setHelperText( @StringRes text: Int){
+    private fun setHelperText(text: Int){
         helper_text.text = getString(text)
     }
 
@@ -58,10 +71,14 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
 
     override fun cardDidConnect(cardManager: CardManager, cardSession: CardSession) {
 
+        if(!readyToAct){
+            return
+        }
+
         setHelperText( R.string.card_connected_1 )
 
         when(action){
-            ACTION.SEND -> (intent.getSerializableExtra(BUNDLE_DATA) as RequestForTransaction)?.let { it.send(cardSession, this) }
+            ACTION.SEND -> (intent.getSerializableExtra(BUNDLE_DATA) as? RequestForTransaction)?.let { it.send(cardSession, this) }
         }
     }
 
@@ -99,6 +116,11 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
 
     override fun didFailWithException(error: Exception) {
         error.printStackTrace()
+
+        if( error is WrongPINException ){
+            cardManager.setAuthenticationPin(null)
+            setHelperText(R.string.card_status_error_pin)
+        }
     }
 
 
@@ -133,5 +155,23 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
     fun didFailed(error: String){
         helper_text.text = "ERROR: $error"
     }
+
+    ///PIN
+    override fun onComplete(pin: String?) {
+
+        readyToAct = true
+        Handler().postDelayed({
+
+            pin_container.visibility = View.GONE
+            listening_container.visibility = View.VISIBLE
+            pin?.let { cardManager.setAuthenticationPin(it) }
+
+        }, 600)
+
+    }
+
+    override fun onPinChange(pinLength: Int, intermediatePin: String?) { }
+    override fun onEmpty() { }
+
 
 }

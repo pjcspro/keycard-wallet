@@ -28,6 +28,8 @@ class CardManager(private var activity : Activity) {
     private val nfcAdapter: NfcAdapter = NfcAdapter.getDefaultAdapter(activity)
     private val cardManager: NFCCardManager = NFCCardManager()
 
+    private var authenticationPin: String? = null //TODO: Store PIN in a safer way
+
     var cardListener : ICardListener? = null //TODO: replace with LiveData and/or events
 
     private var cardSession: CardSession? = null
@@ -75,7 +77,7 @@ class CardManager(private var activity : Activity) {
             // Applet-specific code
             val cmdSet = KeycardCommandSet(cardChannel)
 
-            cardSession = CardSession(cmdSet, cardListener)
+            cardSession = CardSession(cmdSet, cardListener, authenticationPin)
 
             cardSession?.let { cardListener?.cardDidConnect(this, it) }
 
@@ -92,6 +94,10 @@ class CardManager(private var activity : Activity) {
         cardSession = null
 
         cardListener?.cardDidDisconnect(this)
+    }
+
+    fun setAuthenticationPin(pin: String?){
+        authenticationPin = pin
     }
 
 }

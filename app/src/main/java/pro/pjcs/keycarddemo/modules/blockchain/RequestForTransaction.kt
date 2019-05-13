@@ -49,11 +49,9 @@ class RequestForTransaction(private val toAddress: String, private val value : B
             gasPrice = gasPrice ?: web3j.ethGasPrice().send().gasPrice
             gasLimit = gasLimit ?: Transfer.GAS_LIMIT
 
-            val nonce =
-                web3j.ethGetTransactionCount(fromAddress, DefaultBlockParameterName.LATEST).send().transactionCount
+            val nonce = web3j.ethGetTransactionCount(fromAddress, DefaultBlockParameterName.LATEST).send().transactionCount
 
-            val rawTransaction =
-                RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, value)
+            val rawTransaction = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, value)
 
             val txBytes = TransactionEncoder.encode(rawTransaction)
             val signature = signMessage(cardSession, txBytes)

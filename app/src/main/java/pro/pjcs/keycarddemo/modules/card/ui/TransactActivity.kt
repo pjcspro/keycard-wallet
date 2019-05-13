@@ -25,7 +25,7 @@ class TransactActivity : Activity() {
 
     }
 
-    private fun send(to_address: String, amount: String, gasLimit: String, gasPrice: String){
+    private fun send(to_address: String, amount: String, gasLimitStr: String, gasPriceStr: String){
 
         val ethValue = amount.toBigDecimalOrNull()
         if(ethValue == null){
@@ -33,7 +33,7 @@ class TransactActivity : Activity() {
             return
         }
 
-        val gasPrice = gasPrice.toBigDecimalOrNull()
+        val gasPrice = gasPriceStr.toBigDecimalOrNull()
         if(gasPrice == null){
             Toast.makeText(applicationContext, "Invalid gas price", Toast.LENGTH_LONG).show()
             return
@@ -41,7 +41,7 @@ class TransactActivity : Activity() {
 
         val weiValue = Convert.toWei(ethValue, Convert.Unit.ETHER).toBigIntegerExact()
         val weiGasPrice = Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigIntegerExact()
-        val request = RequestForTransaction(to_address, weiValue, weiGasPrice, gasLimit.toBigIntegerOrNull())
+        val request = RequestForTransaction(to_address, weiValue, weiGasPrice, gasLimitStr.toBigIntegerOrNull())
 
         val intent = Intent(this, CardListenerActivityI::class.java)
         intent.putExtra(CardListenerActivityI.BUNDLE_ACTION, CardListenerActivityI.ACTION.SEND)

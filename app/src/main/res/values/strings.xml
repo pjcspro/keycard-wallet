@@ -9,5 +9,6 @@
     <string name="card_status_authenticated">Authenticated</string>
     <string name="card_status_transacting">Sending...</string>
     <string name="card_status_transacted">Sent</string>
+    <string name="card_status_error_pin">Wrong PIN</string>
     <string name="generic_error">Error</string>
 </resources>

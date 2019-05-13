@@ -1,35 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:background="@android:color/white"
         >
 
-
-    <ImageView
+    <RelativeLayout
+            android:id="@+id/listening_container"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="-80dp"
-            android:rotation="20"
-            android:src="@drawable/keycard_white"
-            android:scaleType="centerInside"
-            />
+            android:layout_height="match_parent">
+
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="600dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="-80dp"
+                android:rotation="20"
+                android:src="@drawable/keycard_white"
+                android:scaleType="centerInside"
+                />
 
 
-    <TextView
-            android:id="@+id/helper_text"
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="60dp"
+                >
+
+            <TextView
+                    android:id="@+id/helper_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/waiting_for_card"
+                    android:textSize="17sp"
+                    android:textAlignment="center"
+                    android:textColor="#999999"
+                    android:layout_gravity="center_vertical"
+                    />
+
+        </FrameLayout>
+    </RelativeLayout>
+
+    <FrameLayout
+            android:id="@+id/pin_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/waiting_for_card"
-            android:textSize="17sp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="60dp"
-            android:textAlignment="center"
-            android:textColor="#999999"
-            />
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            >
 
-</RelativeLayout>
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                >
+
+            <TextView
+                    android:id="@+id/profile_name"
+                    android:layout_width="256dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="36dp"
+                    android:fontFamily="sans-serif-thin"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="PIN"
+                    android:textColor="@color/white"
+                    android:textSize="34sp" />
+
+            <com.andrognito.pinlockview.IndicatorDots
+                    android:id="@+id/pin_dots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/profile_name"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="36dp" />
+
+            <com.andrognito.pinlockview.PinLockView
+                    android:id="@+id/input_pin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/pin_dots"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="16dp"
+                    app:keypadButtonSize="72dp"
+                    app:keypadShowDeleteButton="true"
+                    app:keypadTextColor="@color/white"
+                    app:keypadTextSize="18dp" />
+
+        </RelativeLayout>
+    </FrameLayout>
+</FrameLayout>

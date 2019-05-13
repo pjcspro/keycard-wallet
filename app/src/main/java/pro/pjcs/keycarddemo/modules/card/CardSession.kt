@@ -1,5 +1,6 @@
 package pro.pjcs.keycarddemo.modules.card
 import im.status.keycard.applet.*
+import im.status.keycard.io.WrongPINException
 import pro.pjcs.keycarddemo.MyLog
 import pro.pjcs.keycarddemo.toHex
 import kotlin.concurrent.thread
@@ -13,6 +14,7 @@ import kotlin.concurrent.thread
  * TODO: Make clear which calls require authentication
  * TODO: Allow to switch between 12 and 24 words
  * TODO: More complete key derivation
+ * TODO: store PIN in a safer way
  *
  */
 
@@ -24,7 +26,7 @@ interface ICardSessionListener {
     fun didFailWithException(error: Exception)
 }
 
-class CardSession(val cmdSet : KeycardCommandSet, val listener : ICardSessionListener?) {
+class CardSession(private val cmdSet : KeycardCommandSet, private val listener : ICardSessionListener?, private val authenticationPin: String? = null) {
 
     private val TAG = "CardSession"
     private var info: ApplicationInfo
@@ -102,12 +104,16 @@ class CardSession(val cmdSet : KeycardCommandSet, val listener : ICardSessionLis
 
     private fun authenticateWithPin(){
 
-        if (info.hasCredentialsManagementCapability()) {
+        if (info.hasCredentialsManagementCapability() ) {
+
+            if( authenticationPin == null ){
+                throw Exception("Authentication PIN is required")
+            }
 
             listener?.willAuthenticate()
 
             // PIN authentication allows execution of privileged commands
-            cmdSet.verifyPIN("000000").checkAuthOK();
+            cmdSet.verifyPIN(authenticationPin).checkAuthOK();
 
             MyLog.i(TAG, "Pin Verified.");
 
@@ -306,6 +312,8 @@ class CardSession(val cmdSet : KeycardCommandSet, val listener : ICardSessionLis
                 pair()
                 authenticateWithPin()
                 action()
+            }catch (pinError: WrongPINException){
+                listener?.didFailWithException(pinError)
             }catch (e : Exception){
                 e.printStackTrace()
                 listener?.didFailWithException(e)
