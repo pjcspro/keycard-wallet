@@ -8,7 +8,6 @@ import kotlinx.android.synthetic.main.activity_transact.*
 import org.web3j.utils.Convert
 import pro.pjcs.keycarddemo.R
 import pro.pjcs.keycarddemo.modules.blockchain.RequestForTransaction
-import java.math.BigDecimal
 
 
 class TransactActivity : Activity() {
@@ -21,21 +20,28 @@ class TransactActivity : Activity() {
         setContentView(R.layout.activity_transact)
 
         action_send.setOnClickListener{
-            send(input_to_address.text.toString(), input_amount.text.toString())
+            send(input_to_address.text.toString(), input_amount.text.toString(), input_gas_limit.text.toString(), input_gas_price.text.toString())
         }
 
     }
 
-    private fun send(to_address: String, amount : String){
+    private fun send(to_address: String, amount: String, gasLimit: String, gasPrice: String){
 
-        val finneyValue = amount.toDoubleOrNull()
-        if(finneyValue == null){
+        val ethValue = amount.toBigDecimalOrNull()
+        if(ethValue == null){
             Toast.makeText(applicationContext, "Invalid amount", Toast.LENGTH_LONG).show()
             return
         }
 
-        val weiValue = Convert.toWei(BigDecimal.valueOf(finneyValue), Convert.Unit.ETHER).toBigIntegerExact()
-        val request = RequestForTransaction(to_address, weiValue)
+        val gasPrice = gasPrice.toBigDecimalOrNull()
+        if(gasPrice == null){
+            Toast.makeText(applicationContext, "Invalid gas price", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val weiValue = Convert.toWei(ethValue, Convert.Unit.ETHER).toBigIntegerExact()
+        val weiGasPrice = Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigIntegerExact()
+        val request = RequestForTransaction(to_address, weiValue, weiGasPrice, gasLimit.toBigIntegerOrNull())
 
         val intent = Intent(this, CardListenerActivityI::class.java)
         intent.putExtra(CardListenerActivityI.BUNDLE_ACTION, CardListenerActivityI.ACTION.SEND)

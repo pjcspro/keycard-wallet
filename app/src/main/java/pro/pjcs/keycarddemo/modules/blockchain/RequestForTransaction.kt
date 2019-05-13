@@ -31,7 +31,7 @@ interface IRequestTransaction {
 /**
  * Note: for ethereum value must be in weiValue
  */
-class RequestForTransaction(val toAddress: String, val value : BigInteger) : Serializable {
+class RequestForTransaction(private val toAddress: String, private val value : BigInteger, private var gasPrice: BigInteger? = null, private var gasLimit: BigInteger? = null) : Serializable {
 
 
 
@@ -46,12 +46,14 @@ class RequestForTransaction(val toAddress: String, val value : BigInteger) : Ser
             MyLog.w(TAG, "fromAddress: $fromAddress")
 
             // Create transaction
-            val gasPrice = web3j.ethGasPrice().send().gasPrice
+            gasPrice = gasPrice ?: web3j.ethGasPrice().send().gasPrice
+            gasLimit = gasLimit ?: Transfer.GAS_LIMIT
+
             val nonce =
                 web3j.ethGetTransactionCount(fromAddress, DefaultBlockParameterName.LATEST).send().transactionCount
 
             val rawTransaction =
-                RawTransaction.createEtherTransaction(nonce, gasPrice, Transfer.GAS_LIMIT, toAddress, value)
+                RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, value)
 
             val txBytes = TransactionEncoder.encode(rawTransaction)
             val signature = signMessage(cardSession, txBytes)

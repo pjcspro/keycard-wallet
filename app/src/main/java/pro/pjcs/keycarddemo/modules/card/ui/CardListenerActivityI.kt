@@ -16,7 +16,6 @@ import pro.pjcs.keycarddemo.modules.card.ICardListener
 
 class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
 
-
     private lateinit var cardManager: CardManager
 
     enum class ACTION { SEND }
@@ -92,10 +91,16 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
     }
 
     override fun didFailedTransaction(error: String) {
+        didFailed(error)
         runOnUiThread {
             Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         }
     }
+
+    override fun didFailWithException(error: Exception) {
+        error.printStackTrace()
+    }
+
 
     override fun willPrepareTransaction() {
         willSend()
@@ -125,7 +130,8 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction {
         setHelperText(R.string.card_status_transacted)
     }
 
-    fun actionFailed(){
-        setHelperText(R.string.generic_error)
+    fun didFailed(error: String){
+        helper_text.text = "ERROR: $error"
     }
+
 }

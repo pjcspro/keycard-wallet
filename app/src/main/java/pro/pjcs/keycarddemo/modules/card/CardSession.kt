@@ -21,6 +21,7 @@ interface ICardSessionListener {
     fun didPair()
     fun willAuthenticate()
     fun didAuthenticate()
+    fun didFailWithException(error: Exception)
 }
 
 class CardSession(val cmdSet : KeycardCommandSet, val listener : ICardSessionListener?) {
@@ -307,6 +308,7 @@ class CardSession(val cmdSet : KeycardCommandSet, val listener : ICardSessionLis
                 action()
             }catch (e : Exception){
                 e.printStackTrace()
+                listener?.didFailWithException(e)
             }finally {
                 try { unpair() } catch (e : Exception){ e.printStackTrace() }
             }
