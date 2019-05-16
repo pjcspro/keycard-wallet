@@ -23,6 +23,7 @@ class TransactActivity : Activity() {
             send(input_to_address.text.toString(), input_amount.text.toString(), input_gas_limit.text.toString(), input_gas_price.text.toString())
         }
 
+
     }
 
     private fun send(to_address: String, amount: String, gasLimitStr: String, gasPriceStr: String){

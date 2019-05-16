@@ -2,6 +2,9 @@ package pro.pjcs.keycarddemo.modules.card
 import im.status.keycard.applet.*
 import im.status.keycard.io.WrongPINException
 import pro.pjcs.keycarddemo.MyLog
+import pro.pjcs.keycarddemo.modules.security.AuthData
+import pro.pjcs.keycarddemo.modules.security.EncryptionManager
+import pro.pjcs.keycarddemo.modules.security.SecuredStorageManager
 import pro.pjcs.keycarddemo.toHex
 import kotlin.concurrent.thread
 
@@ -30,6 +33,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
 
     private val TAG = "CardSession"
     private var info: ApplicationInfo
+    private val securedStorageManager = SecuredStorageManager(EncryptionManager())
 
     init {
 
@@ -42,7 +46,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
             MyLog.w(TAG, "Card is not initialized")
             //TODO: start initialization process
 
-            /*
+
             initializeIfNeed()
 
             debug()
@@ -68,7 +72,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
             deriveKey()
 
             MyLog.i(TAG, "Current key path: "+getCurrentKeyPath())
-
+/*
             unpair()
             */
 
@@ -94,7 +98,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
         // can be either generated or chosen by the user. Using fixed values is highly discouraged.
         if (!isCardInitialized()) {
             MyLog.i(TAG, "Initializing card with test secrets");
-            cmdSet.init("000000", "123456789012", "KeycardTest").checkOK();
+            cmdSet.init("000000", "123456789012", "KeycardTest").checkOK(); //TODO: Ask this information to the user
             info = ApplicationInfo(cmdSet.select().checkOK().data);
         }
 
@@ -128,21 +132,48 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
 
             listener?.willPair()
 
-            // In real projects, the pairing key should be saved and used for all new sessions.
-            cmdSet.autoPair("KeycardTest") //TODO: Request password to the user
-            val pairing = cmdSet.pairing
+            if( securedStorageManager.noAuthData() ) {
 
-            // Never log the pairing key in a real application!
-            MyLog.i(TAG, "Pairing with card is done.")
-            MyLog.i(TAG, "Pairing index: " + pairing.pairingIndex)
-            MyLog.i(TAG, "Pairing key: " + toHex(pairing.pairingKey))           //TODO: Save pairing key locally
+                // In real projects, the pairing key should be saved and used for all new sessions.
+                cmdSet.autoPair("KeycardTest") //TODO: Request password to the user
+                val pairing = cmdSet.pairing
 
-            // Opening a Secure Channel is needed for all other applet commands
-            cmdSet.autoOpenSecureChannel()
+                // Never log the pairing key in a real application!
+                MyLog.i(TAG, "Pairing with card is done.")
+                MyLog.i(TAG, "Pairing index: " + pairing.pairingIndex)
+                MyLog.i(TAG, "Pairing key: " + toHex(pairing.pairingKey))           //TODO: Save pairing key locally
 
-            MyLog.i(TAG, "Secure channel opened")
+                val cardID = "1" //TODO: Get card identifier so the user can use multiple cards
+                val authData = AuthData(cardID, pairing)
+                securedStorageManager.saveAuthData(authData)
 
-            listener?.didPair()
+                // Opening a Secure Channel is needed for all other applet commands
+                cmdSet.autoOpenSecureChannel()
+
+                MyLog.i(TAG, "Secure channel opened")
+                listener?.didPair()
+
+            }else{
+
+                securedStorageManager.authData?.let {
+                    cmdSet.pairing = it.pairingObject
+
+                    val pairing = cmdSet.pairing
+
+                    // Never log the pairing key in a real application!
+                    MyLog.i(TAG, "Pairing with card is done.")
+                    MyLog.i(TAG, "Pairing index: " + pairing.pairingIndex)
+                    MyLog.i(TAG, "Pairing key: " + toHex(pairing.pairingKey))           //TODO: Save pairing key locally
+
+                    // Opening a Secure Channel is needed for all other applet commands
+                    cmdSet.autoOpenSecureChannel()
+
+                    listener?.didPair()
+                }
+
+            }
+
+
         }
 
     }
@@ -318,7 +349,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
                 e.printStackTrace()
                 listener?.didFailWithException(e)
             }finally {
-                try { unpair() } catch (e : Exception){ e.printStackTrace() }
+                //try { unpair() } catch (e : Exception){ e.printStackTrace() }
             }
 
         }

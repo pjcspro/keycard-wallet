@@ -9,7 +9,7 @@ import org.web3j.crypto.TransactionEncoder
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
-import pro.pjcs.keycarddemo.MyApplication
+import pro.pjcs.keycarddemo.App
 import pro.pjcs.keycarddemo.MyLog
 import pro.pjcs.keycarddemo.modules.card.CardSession
 import pro.pjcs.keycarddemo.toHex
@@ -29,7 +29,7 @@ interface IRequestTransaction {
 }
 
 /**
- * Note: for ethereum value must be in weiValue
+ * Note: for ethereum pairingKey must be in weiValue
  */
 class RequestForTransaction(private val toAddress: String, private val value : BigInteger, private var gasPrice: BigInteger? = null, private var gasLimit: BigInteger? = null) : Serializable {
 
@@ -41,7 +41,7 @@ class RequestForTransaction(private val toAddress: String, private val value : B
         cardSession.just {
 
             listenerI.willPrepareTransaction()
-            val web3j = MyApplication.web3j
+            val web3j = App.web3j
             val fromAddress = cardSession.getPublicKey()?.toEthereumAddress()?.let { "0x"+ toHex(it) };
             MyLog.w(TAG, "fromAddress: $fromAddress")
 
