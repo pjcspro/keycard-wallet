@@ -108,8 +108,9 @@ class CardListenerActivityI : Activity(), ICardListener, IRequestTransaction, Pi
     }
 
     override fun didFailedTransaction(error: String) {
-        didFailed(error)
+
         runOnUiThread {
+            didFailed(error)
             Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         }
     }

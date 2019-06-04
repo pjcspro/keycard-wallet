@@ -44,18 +44,17 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
         if( !isCardInitialized() ){
 
             MyLog.w(TAG, "Card is not initialized")
-            //TODO: start initialization process
-
 
             initializeIfNeed()
 
             debug()
 
+            securedStorageManager.clearAuthData()
             pair()
 
-            debugRetryCount()
-
             authenticateWithPin()
+
+            debugRetryCount()
 
             if( !hasMasterKey() ){
 
@@ -72,9 +71,9 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
             deriveKey()
 
             MyLog.i(TAG, "Current key path: "+getCurrentKeyPath())
-/*
-            unpair()
-            */
+
+            //unpair()
+
 
         }else{
 
@@ -116,6 +115,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
 
             listener?.willAuthenticate()
 
+            MyLog.i(TAG, "Authenticating with pin $authenticationPin");
             // PIN authentication allows execution of privileged commands
             cmdSet.verifyPIN(authenticationPin).checkAuthOK();
 
@@ -128,7 +128,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
 
     private fun pair(){
 
-        if (info.hasSecureChannelCapability()) {
+        if (info.hasSecureChannelCapability() ) {
 
             listener?.willPair()
 
@@ -160,6 +160,8 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
 
                     val pairing = cmdSet.pairing
 
+                    cmdSet.pair(pairing.pairingIndex, pairing.pairingKey)
+
                     // Never log the pairing key in a real application!
                     MyLog.i(TAG, "Pairing with card is done.")
                     MyLog.i(TAG, "Pairing index: " + pairing.pairingIndex)
@@ -167,6 +169,7 @@ class CardSession(private val cmdSet : KeycardCommandSet, private val listener :
 
                     // Opening a Secure Channel is needed for all other applet commands
                     cmdSet.autoOpenSecureChannel()
+                    //cmdSet.openSecureChannel(pairing.pairingIndex, pairing.pairingKey).checkOK().checkAuthOK()
 
                     listener?.didPair()
                 }
